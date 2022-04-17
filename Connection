@@ -1,0 +1,15 @@
+#Connection Varianten
+
+Anforderungen an die Verbindung
+
+Werden die Services und Tools auf entfernter HW installiert, muss die Verbindung zwischen dieser HW und dem Raspibolt folgende MErkmale aufweisen:
+- verschlüsselt
+- automatischer Aufbau nach dem Aufstarten eines oder beider Systeme.
+
+
+Varianten
+
+SSH-Portforwarding
+
+- openssh's port forwarding
+- sshuttle https://github.com/apenwarr/sshuttle
