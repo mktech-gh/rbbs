@@ -1,6 +1,9 @@
-rb-bonus
+# rb-bonus
 
-HW: Alter Laptop
+Im Moment sind raspbery pi nicht lieferbar. Aus diesem Grund setze ich auf einem alten Laptop ein Debian-System auf.
+Ziel ist es, ein Raspberry Pi analog dem System für den RaspiBolt aufzusetzen.
+
+HW: ASUS Laptop P52F (very old ;-)
 OS:Debian
 - Installation Bootloader auf USB mit https://unetbootin.github.io/
 
@@ -42,6 +45,20 @@ Boot on USB:
   >         psk=748d56b8cf29278050184197d9410899baa20aed0ec65f13405b1be83d1ddd70
   > }
 
+  Manuell WLAN aktivieren und IP-Adresse beziehen
+  sudo /sbin/ifup -a -v
+  sudo wpa_supplicant -i wls1 -c /etc//wpa_supplicant/wpa_supplicant.conf &
+  sudo dhclient
   
+  sudo mv wlan_aktiv /usr/local/bin/wlan_aktiv
+$ sudo chmod +x /usr/local/bin/wlan_aktiv
 
+  - ssh-server aktivieren:
+  $ sudo apt install openssh-server
+  $ sudo systemctl status ssh
+  $ sudo service ssh stop
+  $ sudo service ssh start
+  
+  Nun ist das System bereit für den POC
+  
 
