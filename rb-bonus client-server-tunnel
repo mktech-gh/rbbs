@@ -1,0 +1,26 @@
+## Installation und Start verschlüsselter Tunnel
+
+https://sshuttle.readthedocs.io/en/stable/installation.html
+
+$ sudo apt install sshuttle
+
+Neuer User admin anlegen 
+https://raspibolt.org/guide/raspberry-pi/system-configuration.html#add-the-admin-user-and-log-in-with-it
+
+Login auf RaspiBolt mit SSH-Keys konfigurieren
+https://raspibolt.org/guide/raspberry-pi/security.html#login-with-ssh-keys
+
+Test Login mit SSH-Key
+$ ssh admin@raspibolt
+
+Beim ersten Zugriff wird der Fingerprint zur Überprüfung angezeigt.
+
+sshuttle verbinden
+$ sshuttle -r admin@raspibolt 0.0.0.0/0
+
+Mit Ctrl C abbrechen
+
+Pendenzen:
+1. Access auf rb-bonus von PC ebenfalls mit SSH-Keys einrichten
+2. WLAN-Aktivierung automatisieren, damit nicht bei jedem Neustart wieder auf der Konsole eingeloggt werden muss und das WLAN verbunden werden muss.
+3. ev. noch sshuttle --sudoers ausführen. siehe: https://sshuttle.readthedocs.io/en/stable/manpage.html#cmdoption-sshuttle-sudoers
