@@ -19,54 +19,66 @@ OS:Debian
   - sudo nano /etc/systemd/logind.conf
     - HandleLidSwitch=ignore
     - sudo service systemd-logind restart
-- wlan mit wpa_supplicant konfigurieren
-  - sudo nano /etc/wpa_supplicant/wpa_supplicant.conf
-    > country=CH
-    > ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
-    > ap_scan=1
-    > update_config=1
-    
+## wlan mit wpa_supplicant konfigurieren
+   ```sh
+   $ sudo nano /etc/wpa_supplicant/wpa_supplicant.conf
+   ```
+   Paste the following lines. Save and exit.
+   ```ini
+   country=CH
+   ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+   ap_scan=1
+   update_config=1
+   ```
+
   - SSID und Passwort werden nicht direkt in die wpa_supplicant.conf geschrieben, damit das Passwort nicht im klartext ersichtlich ist. Mit dem command wpa_passphrase wird SSID und der Hash des Passworts in die Datei wpa_supplicant.conf geschrieben. Dieser Befehl muss als root ausgeführt werden!
-  
-  - sudo -i
-  - wpa_passphrase "WLAN-NAME" "WLAN-PASSWORT" >> /etc/wpa_supplicant/wpa_supplicant.conf
-  - exit
-  
-  - Überprüfen:
-  - sudo cat /etc/wpa_supplicant/wpa_supplicant.conf
+   ```sh
+  $ sudo -i
+  $ wpa_passphrase "WLAN-NAME" "WLAN-PASSWORT" >> /etc/wpa_supplicant/wpa_supplicant.conf
+  $ exit
+   ```
+### Überprüfen:
+  ```sh
+  $ sudo cat /etc/wpa_supplicant/wpa_supplicant.conf
   > country=CH
   > ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
   > ap_scan=1
   > update_config=1
-  >
+  
   > network={
-  >         ssid="mdq-92227"
-  >         psk=748d56b8cf29278050184197d9410899baa20aed0ec65f13405b1be83d1ddd70
+  >        ssid="mdq-92227"
+  >        psk=748d56b8cf29278050184197d9410899baa20aed0ec65f13405b1be83d1ddd70
   > }
-
-  ##anuell WLAN aktivieren und IP-Adresse beziehen
-  sudo /sbin/ifup -a -v
-  sudo wpa_supplicant -i wls1 -c /etc/wpa_supplicant/wpa_supplicant.conf &
-  sudo dhclient
-  
-  ##Automatisch beim Booten WLAN aktivieren
-  
+  ```
+### WLAN manuell aktivieren und IP-Adresse beziehen
+  ```sh
+  $ sudo /sbin/ifup -a -v
+  $ sudo wpa_supplicant -i wls1 -c /etc/wpa_supplicant/wpa_supplicant.conf &
+  $ sudo dhclient
+   ```
+### WLAN beim Booten automatisch aktivieren
+  ```sh
   $ ls /sys/class/net
+   ```
   > ens5f5  lo wls1
-  
+  ```sh
   $ sudo cp /etc/network/interfaces /etc/network/interfaces.back
   $ sudo nano /etc/network/interfaces
-    >allow-hotplug wls1
-    >iface wls1 inet dhcp
-   >   pre-up wpa_supplicant -i wls1 -c /etc/wpa_supplicant/wpa_supplicant.conf
-   
+  ```
+  Paste the following lines. Save and exit.
+  ```ini
+  allow-hotplug wls1
+  iface wls1 inet dhcp
+  pre-up wpa_supplicant -i wls1 -c /etc/wpa_supplicant/wpa_supplicant.conf
+  ```
   
   - ssh-server aktivieren:
+  ```sh
   $ sudo apt install openssh-server
   $ sudo systemctl status ssh
   $ sudo service ssh stop
   $ sudo service ssh start
-  
+   ```
   Nun ist das System bereit für den POC
   
 
