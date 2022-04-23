@@ -1,6 +1,6 @@
 # rb-bonus
 
-Im Moment sind raspbery pi nicht lieferbar. Aus diesem Grund setze ich auf einem alten Laptop ein Debian-System auf.
+Aktuell sind raspbery pi nicht lieferbar. Aus diesem Grund setze ich auf einem alten Laptop ein Debian-System auf.
 Ziel ist es, ein Raspberry Pi analog dem System für den RaspiBolt aufzusetzen.
 
 HW: ASUS Laptop P52F (very old ;-)
@@ -31,13 +31,13 @@ OS:Debian
    update_config=1
    ```
 
-  - SSID und Passwort werden nicht direkt in die wpa_supplicant.conf geschrieben, damit das Passwort nicht im klartext ersichtlich ist. Mit dem command wpa_passphrase wird SSID und der Hash des Passworts in die Datei wpa_supplicant.conf geschrieben. Dieser Befehl muss als root ausgeführt werden!
+Damit das Passwort nicht im Klartext einsehbar ist werden SSID und Passwort nicht direkt in die Datei `wpa_supplicant.conf` geschrieben. Mit dem command `wpa_passphrase`  wird SSID und der Hash des Passworts in die Datei `wpa_supplicant.conf` geschrieben. Dieser Befehl muss als `root` ausgeführt werden!
    ```sh
   $ sudo -i
   $ wpa_passphrase "WLAN-NAME" "WLAN-PASSWORT" >> /etc/wpa_supplicant/wpa_supplicant.conf
   $ exit
    ```
-### Überprüfen:
+Überprüfen von wpa_supplicant.conf:
   ```sh
   $ sudo cat /etc/wpa_supplicant/wpa_supplicant.conf
   > country=CH
@@ -51,16 +51,19 @@ OS:Debian
   > }
   ```
 ### WLAN manuell aktivieren und IP-Adresse beziehen
+  Name des WLAN-Interface in Erfahrung bringen:
+  ```sh
+  $ ls /sys/class/net
+  > ens5f5  lo wls1
+  ```
+  WLAN-Interface aktivieren, am Acccesspoint anmelden und IP-Adresse beziehen
   ```sh
   $ sudo /sbin/ifup -a -v
   $ sudo wpa_supplicant -i wls1 -c /etc/wpa_supplicant/wpa_supplicant.conf &
   $ sudo dhclient
    ```
 ### WLAN beim Booten automatisch aktivieren
-  ```sh
-  $ ls /sys/class/net
-   ```
-  > ens5f5  lo wls1
+  Backup von `interfaces` erstellen und `interfaces` anpassen
   ```sh
   $ sudo cp /etc/network/interfaces /etc/network/interfaces.back
   $ sudo nano /etc/network/interfaces
