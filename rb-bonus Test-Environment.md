@@ -75,19 +75,55 @@ Damit das Passwort nicht im Klartext einsehbar ist werden SSID und Passwort nich
   $ sudo dhclient
   ```
 ### WLAN beim Booten automatisch aktivieren
-  Backup von `interfaces` erstellen und `interfaces` anpassen
+
+Inspiriert u.a. von https://wiki.archlinux.org/title/systemd-networkd
+
+​	`networking.service`  wird deaktiviert, da der aktuellere Service `systemd-network.service`verwendet wird.
+
+```sh
+$ sudo systemctl disable networking.service
+```
+
+​	Backup von `interfaces` erstellen und `interfaces` anpassen. Eigentlich habe ich erwartet, dass bei Verwendung von `systemd-network.service`diese Datei nicht mehr nötig ist. Jedoch wird ohne dieses Datei das Interface wls1 nicht aktiviert.
+
   ```sh
   $ sudo cp /etc/network/interfaces /etc/network/interfaces.back
   $ sudo nano /etc/network/interfaces
   ```
-  Paste the following lines. Save and exit.
+​	Paste the following lines. Save and exit.
   ```ini
   allow-hotplug wls1
   iface wls1 inet dhcp
   pre-up wpa_supplicant -i wls1 -c /etc/wpa_supplicant/wpa_supplicant.conf
   ```
 
-  - ssh-server aktivieren:
+​	Konfiguration von `systemd-network.service`
+
+```sh
+$ sudo nano /etc/systemd/network/wls1.network
+```
+​	Paste the following lines. Save and exit.
+```
+[Match]
+Name=wls1
+
+[Network]
+DHCP=yes
+IgnoreCarrierLoss=3s
+```
+
+​	`systemd-network.service` aktivieren für den Start beim booten
+
+```sh
+$ sudo systemctl enable systemd-networkd.service
+```
+
+
+
+## SSH-Server
+
+ssh-server aktivieren:
+
   ```sh
   $ sudo apt install openssh-server
   $ sudo systemctl status ssh
@@ -95,4 +131,31 @@ Damit das Passwort nicht im Klartext einsehbar ist werden SSID und Passwort nich
   $ sudo service ssh start
   ```
   Nun ist das System bereit für den POC
+
+
+
+
+
+Neue Variante mit systemd-network.service
+
+https://wiki.archlinux.org/title/systemd-networkd
+
+sudo systemctl disable networking.service
+
+sudo nano /etc/systemd/network/wls1.network
+
+[Match]
+Name=wls1
+
+[Network]
+DHCP=yes
+IgnoreCarrierLoss=3s
+
+
+
+sudo systemctl enable systemd-networkd.service
+
+
+
+
 
