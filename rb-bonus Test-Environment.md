@@ -19,7 +19,7 @@ OS:Debian
 - Laptop beim zuklappen des Deckels nicht ausschalten
 
 ```sh
-sudo nano /etc/systemd/logind.conf
+$ sudo nano /etc/systemd/logind.conf
 ```
 
 Paste the following lines. Save and exit.
