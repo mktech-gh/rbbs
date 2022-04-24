@@ -133,29 +133,3 @@ ssh-server aktivieren:
   Nun ist das System bereit für den POC
 
 
-
-
-
-Neue Variante mit systemd-network.service
-
-https://wiki.archlinux.org/title/systemd-networkd
-
-sudo systemctl disable networking.service
-
-sudo nano /etc/systemd/network/wls1.network
-
-[Match]
-Name=wls1
-
-[Network]
-DHCP=yes
-IgnoreCarrierLoss=3s
-
-
-
-sudo systemctl enable systemd-networkd.service
-
-
-
-
-
