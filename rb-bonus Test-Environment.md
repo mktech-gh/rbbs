@@ -31,7 +31,7 @@ HandleLidSwitch=ignore
 $ sudo service systemd-logind restart
   ```
 
-## wlan mit wpa_supplicant konfigurieren
+## config wlan with wpa_supplicant 
    ```sh
    $ sudo nano /etc/wpa_supplicant/wpa_supplicant.conf
    ```
