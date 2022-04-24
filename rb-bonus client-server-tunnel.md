@@ -1,37 +1,35 @@
----
-layout: default
-title: Bitcoin client
-nav_order: 10
-parent: Bitcoin
----
-<!-- markdownlint-disable MD014 MD022 MD025 MD033 MD040 -->
-# Bitcoin client
-{: .no_toc }
-
-
-
-## Installation und Start verschlüsselter Tunnel
+# Installation und Aktivierung verschlüsselter Tunnel
 
 Pendenzen allgemein
-###################
+
 1. Access auf rb-bonus von PC-vomfass ebenfalls mit SSH-Keys einrichten
 2. WLAN-Aktivierung automatisieren, damit nicht bei jedem Neustart wieder auf der Konsole eingeloggt werden muss und das WLAN verbunden werden muss.
 
-Variante sshuttle
-#################
+## Generell für alle Varianten
+
+Neuer User `admin` anlegen 
+https://raspibolt.org/guide/raspberry-pi/system-configuration.html#add-the-admin-user-and-log-in-with-it
+
+
+
+## Variante sshuttle
 
 https://sshuttle.readthedocs.io/en/stable/installation.html
 
+```ssh
 $ sudo apt install sshuttle
+```
 
-Neuer User admin anlegen 
-https://raspibolt.org/guide/raspberry-pi/system-configuration.html#add-the-admin-user-and-log-in-with-it
+
 
 Login auf RaspiBolt mit SSH-Keys konfigurieren
 https://raspibolt.org/guide/raspberry-pi/security.html#login-with-ssh-keys
 
 Test Login mit SSH-Key
+
+```ssh
 $ ssh admin@raspibolt
+```
 
 Beim ersten Zugriff wird der Fingerprint zur Überprüfung angezeigt.
 
