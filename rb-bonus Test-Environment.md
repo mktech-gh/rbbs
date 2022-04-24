@@ -1,4 +1,4 @@
-# rb-bonus
+# rb-bonus Test Environment
 
 Aktuell sind raspbery pi nicht lieferbar. Aus diesem Grund setze ich auf einem alten Laptop ein Debian-System auf.
 Ziel ist es, ein Raspberry Pi analog dem System für den RaspiBolt aufzusetzen.
@@ -15,7 +15,7 @@ OS:Debian
 - Disk Partitionierung: Ganzer Disk mit LVM (ohne verschlüsselung)
 - Eine Partition (Keine separaten für /home und /tmp) 
 - 100GB der verfügbaren 500GB werden partitioniert: Eine Erweiterung der Partition ist jederzeit mit dem LVM-Tool möglich
-- Keine zusätzliche Software wird installiert. Auch nicht die vorgeschlagenen Pakete: Debian Desktop enviroment und GNOME
+- Keine zusätzliche Software wird installiert. Auch keine vorgeschlagene Pakete: Debian Desktop environment und GNOME
 - Laptop beim zuklappen des Deckels nicht ausschalten
 
 ```sh
