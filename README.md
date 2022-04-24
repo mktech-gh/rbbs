@@ -12,3 +12,7 @@ Im Bonusguide des Projekts RASPIBOLT werden laufend neue Services und Tolls eing
 
 Mit diesem POC wird geprüft ob die Servicese und Tools des Bonus-guides und auch der Basis-Dienste RTL und Blickchin Explorer auf einer dedizierten HW betriben werden können. Der Verbindung zum RaspBolt soll möglichst trasnparent und sicher erfolgen.
 
+
+
+
+

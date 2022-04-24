@@ -7,7 +7,8 @@ HW: ASUS Laptop P52F (very old ;-)
 OS:Debian
 - Installation Bootloader auf USB mit https://unetbootin.github.io/
 
-##Boot on USB:
+##Boot on USB. Anmerkungen zur Installation:
+
 - Installation startet unmittelbar
 - Ich gebe kein Passwort für Root. Dadurch wird root disabled und der initial definierte User bekommt die Berechtigung sudo zu benutzen
 - User: mktech-admin UID: mktech-admin PW: Password[A]
@@ -61,7 +62,7 @@ Damit das Passwort nicht im Klartext einsehbar ist werden SSID und Passwort nich
   $ sudo /sbin/ifup -a -v
   $ sudo wpa_supplicant -i wls1 -c /etc/wpa_supplicant/wpa_supplicant.conf &
   $ sudo dhclient
-   ```
+  ```
 ### WLAN beim Booten automatisch aktivieren
   Backup von `interfaces` erstellen und `interfaces` anpassen
   ```sh
@@ -74,14 +75,13 @@ Damit das Passwort nicht im Klartext einsehbar ist werden SSID und Passwort nich
   iface wls1 inet dhcp
   pre-up wpa_supplicant -i wls1 -c /etc/wpa_supplicant/wpa_supplicant.conf
   ```
-  
+
   - ssh-server aktivieren:
   ```sh
   $ sudo apt install openssh-server
   $ sudo systemctl status ssh
   $ sudo service ssh stop
   $ sudo service ssh start
-   ```
+  ```
   Nun ist das System bereit für den POC
-  
 
