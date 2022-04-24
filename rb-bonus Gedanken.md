@@ -26,3 +26,5 @@ https://linuxize.com/post/how-to-install-and-configure-an-nfs-server-on-ubuntu-1
 Fileshare über sshfs
 https://linuxize.com/post/how-to-use-sshfs-to-mount-remote-directories-over-ssh/
 
+
+

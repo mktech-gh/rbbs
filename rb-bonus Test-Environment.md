@@ -17,9 +17,20 @@ OS:Debian
 - 100GB der verfügbaren 500GB werden partitioniert: Eine Erweiterung der Partition ist jederzeit mit dem LVM-Tool möglich
 - Keine zusätzliche Software wird installiert. Auch nicht die vorgeschlagenen Pakete: Debian Desktop enviroment und GNOME
 - Laptop beim zuklappen des Deckels nicht ausschalten
-  - sudo nano /etc/systemd/logind.conf
-    - HandleLidSwitch=ignore
-    - sudo service systemd-logind restart
+
+```sh
+sudo nano /etc/systemd/logind.conf
+```
+
+Paste the following lines. Save and exit.
+
+```ini
+HandleLidSwitch=ignore
+```
+  ```sh
+$ sudo service systemd-logind restart
+  ```
+
 ## wlan mit wpa_supplicant konfigurieren
    ```sh
    $ sudo nano /etc/wpa_supplicant/wpa_supplicant.conf
