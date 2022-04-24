@@ -124,12 +124,12 @@ $ sudo systemctl enable systemd-networkd.service
 
 ssh-server aktivieren:
 
-  ```sh
-  $ sudo apt install openssh-server
-  $ sudo systemctl status ssh
-  $ sudo service ssh stop
-  $ sudo service ssh start
-  ```
-  Nun ist das System bereit für den POC
+```sh
+$ sudo apt install openssh-server
+$ sudo systemctl status ssh
+$ sudo service ssh stop
+$ sudo service ssh start
+```
+Nun ist das System bereit für den POC
 
 
