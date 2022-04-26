@@ -120,6 +120,46 @@ $ sudo systemctl enable systemd-networkd.service
 
 
 
+## Tailscale installieren und zu VPN hinzufügen
+
+Voraussetzung ist ein bestehendes Tailscale-Konto
+
+### curl installieren
+
+User admin
+
+```sh
+$ sudo apt update && sudo apt upgrade
+$ sudo apt install curl
+$ curl --version
+```
+
+### Tailscale installieren
+
+User admin
+
+```sh
+$ curl -fsSL https://tailscale.com/install.sh | sh
+```
+
+### Tailscale anmelden
+
+```sh
+$ sudo tailscale up
+```
+
+Es wird eine URL angezeigt. Diese URL aufrufen und bei Tailscale (SSO-Account) anmelden. rb-bonus wird automatisch erkannt. Fenster schliessen. Auf rb-bonus-Konsole wird angezeigt:
+
+```
+> Success.
+```
+
+### Tailscale konfigurieren
+
+Auf https://login.tailscale.com/admin/machines anmelden und bei rb-bonus "Key expiry" disablen.
+
+
+
 ## SSH-Server
 
 ssh-server aktivieren:
@@ -131,5 +171,4 @@ $ sudo service ssh stop
 $ sudo service ssh start
 ```
 Nun ist das System bereit für den POC
-
 
