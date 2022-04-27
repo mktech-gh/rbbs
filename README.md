@@ -1,4 +1,5 @@
-# vpn-access-for-bonus-guide
+# rbbs (R)aspi(B)olt (B)onus (S)erver
+
 POC: VPN for bonus guide tools access to the raspibolt
 
 ## Ausgangslage:
@@ -10,7 +11,7 @@ Im Bonusguide des Projekts RASPIBOLT werden laufend neue Services und Tolls eing
 
 ## Ziel des POC
 
-Mit diesem POC wird geprüft ob die Services und Tools des Bonus-guides und auch der Basis-Dienste RTL und Blickchin Explorer auf einer dedizierten HW betriben werden können. Der Verbindung zum RaspBolt soll möglichst trasnparent und sicher erfolgen.
+Mit diesem POC wird geprüft ob die Services und Tools des Bonus-guides und auch die Basis-Dienste RTL und Blickchin Explorer auf einer dedizierten HW betriben werden können. Der Verbindung zum RaspBolt soll möglichst trasnparent und sicher erfolgen.
 
 
 
