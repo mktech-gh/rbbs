@@ -170,5 +170,15 @@ $ sudo systemctl status ssh
 $ sudo service ssh stop
 $ sudo service ssh start
 ```
+Login mit SSH-Key
+
+- Public-Key von Powershell und Putty in `authorized_keys` einfügen und abspeichern
+
+```sh
+$ nano .ssh/authorized_keys
+```
+
+
+
 Nun ist das System bereit für den POC
 
