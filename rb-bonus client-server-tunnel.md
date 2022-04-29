@@ -153,7 +153,7 @@ Im ersten Terminal-Fenster sind die Aktivitäten aufgrund der Option ``-o debug`
 
 Das Verzeichnis @raspibolt/data/lnd soll automatisch beim start von rbbs verbunden werden. Das Verzeichnis soll bei einem Unterbruch wieder Verbunden werden. Die Zugriffsrechte sollen analog dem Verzeichnis @raspibolt/data/lnd gelten.
 
-Dazu wird die Datei /etc/fstab ergänzt:
+Für den Mount wird die Datei /etc/fstab ergänzt:
 
 ```sh
 admin@rbbs:~$ sudo nano /etc/fstab
@@ -161,7 +161,20 @@ admin@rbbs:~$ sudo nano /etc/fstab
 
 ```
 lnd@raspibolt:/data/lnd /data/lnd fuse.sshfs noauto,x-systemd.automount,_netdev,reconnect,identityfile=/home/lnd/.ssh/id_rsa,allow_other,default_permissions 0 0
+
 ```
+
+Das Dateisystem auf ```@raspibolt:/data/lnd```wird beim Systemstart mit dem Benutzer ```lnd@raspibolt``` und dem Key unter ```/home/lnd/.ssh/id_rsa``` verbunden. Mit der der Option ```allow_other``` wird das verbundene Verzeichnis auch für andere Benutzer zugänglich. Dabei werden mit der Option ```default_permissions``` die Benutzer- und Gruppenrechte vom Original übernommen.
+
+Damit die Option ```allow_other``` verwendet werden darf, ist in der Datei ```fuse.conf```die Option ```user_allow_other```zu aktivieren:
+
+```sh
+admin@rbbs:~$ sudo nano /etc/fuse.conf
+```
+
+Kommentar bei ```user_allow_other``` entfernen.
+
+
 
 Das File-System neu laden:
 
@@ -171,9 +184,9 @@ admin@rbbs:~$ systemctl daemon-reload
 
 
 
-```sh
-lnd@raspibolt:/data/lnd/ /data/lnd fuse.sshfs noauto,x-systemd.automount,_netdev,reconnect,identityfile=/home/sammy/.ssh/id_rsa,allow_other,default_permissions 0 0
-```
+GRRRRRRRRRRR: Funktionierte, aber nach dem Reboot nicht mehr
+
+
 
 
 
