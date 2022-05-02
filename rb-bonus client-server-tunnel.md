@@ -12,7 +12,7 @@ https://raspibolt.org/guide/raspberry-pi/system-configuration.html#add-the-admin
 Verzeichnis `/data`erstellen
 
 ```sh
-admin@rb-bonus~$ sudo mkdir /data
+admin@rbbs~$ sudo mkdir /data
 ```
 
 Optional falls ssh-Zugriff auf RaspiBolt notwendig ist.
@@ -67,28 +67,40 @@ https://www.digitalocean.com/community/tutorials/how-to-use-sshfs-to-mount-remot
 SSHFS is available from the default Debian repositories. Update the packages index and install the sshfs client by typing:
 
 ```sh
-admin@rb-bonus~$ sudo apt update
-admin@rb-bonus~$ sudo apt install sshfs
+admin@rbbs~$ sudo apt update
+admin@rbbs~$ sudo apt install sshfs
 ```
+
+Kontrolle ob sshfs -Module im Kernel geladen ist
+
+```sh
+admin@rbbs~$ lsmod | grep fuse
+```
+
+```
+> fuse                  167936  1
+```
+
+
 
 Analog RaspiBolt wird ein Benutzer lnd und das Datendirectory /data/lnd hinzugefügt
 
 - Auf dieses lokale Directory /data/lnd wird später das RaspiBolt-Directory /data/lnd gemountet
 
 ```sh 
-admin@rb-bonus~$ sudo adduser --disabled-password --gecos "" lnd
-admin@rb-bonus~$ sudo mkdir /data/lnd
-admin@rb-bonus~$ sudo chown -R lnd:lnd /data/lnd
+admin@rbbs~$ sudo adduser --disabled-password --gecos "" lnd
+admin@rbbs~$ sudo mkdir /data/lnd
+admin@rbbs~$ sudo chown -R lnd:lnd /data/lnd
 ```
 
 - Pendenz: Falls Tor installiert wird, muss lnd eventuell noch zur Gruppe debian-tor hinzugefügt werden
   Pendenz: Danicht mit dem Benutzer lnd auf rb-bonus gearbeitet wird, ist diese Gruppenzuordnung voraussichtlich nicht nötig
-  Pendenz: admin@rb-bonus~$  sudo usermod -a -G debian-tor lnd
+  Pendenz: admin@rbbs~$  sudo usermod -a -G debian-tor lnd
 
 - Add the user “admin” to the group “lnd”
 
 ```sh
-admin@rb-bonus~$ sudo adduser admin lnd
+admin@rbbs~$ sudo adduser admin lnd
 ```
 
 
@@ -100,7 +112,7 @@ Mit User ``lnd`` Key generieren, damit sich dieser Benutzer beim Raspibolt für 
 -  Schlüssel generieren (`/home/lnd/.ssh/id_rsa`) und auf `admin@raspibolt/home/asdmin/.ssh/authorized_keys` hinzufügen
 
 ```sh
-admin@rb-bonus~$ sudo su - lnd
+admin@rbbs~$ sudo su - lnd
 lnd@rbbs~$ ssh-keygen -t rsa -b 4096
 lnd@rbbs:~$ cat .ssh/id_rsa.pub
 ```
@@ -110,7 +122,7 @@ lnd@rbbs:~$ cat .ssh/id_rsa.pub
 
 ```sh
 admin@raspibolt:~$ sudo su - lnd
-lnd@raspibolt:~ $ nano authorized_keys
+lnd@raspibolt:~ $ nano .ssh/authorized_keys
 ```
 
 ### Manual Mount the remote lnd Directory
@@ -118,7 +130,7 @@ lnd@raspibolt:~ $ nano authorized_keys
 Das  remote directory mit dem sshfs Befehl verbinden (-o debug zum testen):
 
 ```sh
-lnd@rb-bonus~$ sshfs -o debug lnd@raspibolt:/data/lnd /data/lnd
+lnd@rbbs~$ sshfs -o debug lnd@raspibolt:/data/lnd /data/lnd
 ```
 
 Auf einem zweiten Terminal-Fenster mit ``admin@rbbs`` anmelden und auf ```lnd```wechseln
@@ -166,6 +178,16 @@ lnd@raspibolt:/data/lnd /data/lnd fuse.sshfs noauto,x-systemd.automount,_netdev,
 
 Das Dateisystem auf ```@raspibolt:/data/lnd```wird beim Systemstart mit dem Benutzer ```lnd@raspibolt``` und dem Key unter ```/home/lnd/.ssh/id_rsa``` verbunden. Mit der der Option ```allow_other``` wird das verbundene Verzeichnis auch für andere Benutzer zugänglich. Dabei werden mit der Option ```default_permissions``` die Benutzer- und Gruppenrechte vom Original übernommen.
 
+Mit der Option ```_netdev``` wird systemxd angewiesen mit diesem Mount die Verfügbrkeit des Netzwerks abzuwarten.
+
+lnd@raspibolt:/data/lnd /data/lnd fuse.sshfs uid=lnd,gid=lnd,x-systemd.automount,_netdev,reconnect,identityfile=/home/lnd/.ssh/id_rsa,allow_other,default_permissions 0 0
+
+Mount:
+
+systemd-1 on /data/lnd type autofs (rw,relatime,fd=54,pgrp=1,timeout=0,minproto=5,maxproto=5,direct,pipe_ino=11562)
+
+
+
 Damit die Option ```allow_other``` verwendet werden darf, ist in der Datei ```fuse.conf```die Option ```user_allow_other```zu aktivieren:
 
 ```sh
@@ -184,9 +206,96 @@ admin@rbbs:~$ systemctl daemon-reload
 
 
 
-GRRRRRRRRRRR: Funktionierte, aber nach dem Reboot nicht mehr
+Aus dem fstab - Eintrag werden zwei systemd - Mount - Unit generiert:
+
+/run/systemd/generator/data-lnd.automount
+
+/run/systemd/generator/data-lnd.moun
+
+Mit diesen Units wird der Mount mmit dem User root gemacht. Damit dies gelinget nuss auch de User Root ein Key besitzen:
+
+admin@rbbs:~$ sudo su -
+
+root@rbbs:~# ssh-keygen -t rsa -b 4096
+
+Public Key in authen..File von lnd@raspibolt aufnehmen
 
 
+
+Nun unktioniert es nach:
+
+admin@rbbs:~$ sudo systemctl start data-lnd.mount
+
+
+
+Weiter verfolgen, Sonst anstelle von Mount als service starten
+
+https://wiki.ubuntuusers.de/systemd/Units/
+
+https://wiki.ubuntuusers.de/systemd/Mount_Units/
+
+https://wiki.ubuntuusers.de/systemd/Service_Units/
+
+
+
+
+
+Script-Datei für Mount von ```/data/lnd/```erstellen
+
+```sh
+sudo nano /usr/local/bin/mount_data_lnd
+```
+
+Text einfügen, speichern und verlassen:
+
+```
+sshfs lnd@raspibolt:/data/lnd /data/lnd -o reconnect,identityfile=/home/lnd/.ssh/id_rsa,allow_other,default_permissions
+```
+
+Datei ausführbar machen:
+
+```sh
+sudo chmod +x /usr/local/bin/mount_data_lnd
+```
+
+
+
+As user “admin”, create the service file
+
+```
+$ sudo nano /etc/systemd/system/mount_data_lnd.service
+```
+
+Paste the following configuration. Save and exit
+
+```
+# rbbs: systemd unit for mount the LND-Data-Directory from RaspiBolt
+# /etc/systemd/system/mount_data_lnd.service
+
+[Unit]
+Description=Mount LND Datadirectory from RaspiBolt
+After=network.target 
+After=network-online.target
+
+[Service]
+WorkingDirectory=/home/btcrpcexplorer/btc-rpc-explorer
+ExecStart=/usr/local/bin/mount_data_lnd start
+User=lnd
+
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable the service, start it and check the log output
+
+```
+$ sudo systemctl enable btcrpcexplorer.service
+$ sudo systemctl start btcrpcexplorer.service
+$ sudo journalctl -f -u btcrpcexplorer
+```
 
 
 
