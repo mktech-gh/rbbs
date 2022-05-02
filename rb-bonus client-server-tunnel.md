@@ -2,17 +2,20 @@
 
 Pendenzen allgemein
 
-1. 
+1. sshfs - Vebingung testen betreffend ausfall Restart usw.
 
-## Generell für alle Varianten
+
+
+## sshfs - Mount raspibolt/data/lnd/
 
 Neuer User `admin` anlegen 
 https://raspibolt.org/guide/raspberry-pi/system-configuration.html#add-the-admin-user-and-log-in-with-it
 
-Verzeichnis `/data`erstellen
+Verzeichnis `/data/lnd`erstellen
 
 ```sh
 admin@rbbs~$ sudo mkdir /data
+admin@rbbs~$ sudo mkdir /data/lnd
 ```
 
 Optional falls ssh-Zugriff auf RaspiBolt notwendig ist.
@@ -25,39 +28,7 @@ ssh-keygen -t rsa -b 4096
 
 
 
-
-
-## Variante sshuttle
-
-https://sshuttle.readthedocs.io/en/stable/installation.html
-
-```ssh
-$ sudo apt install sshuttle
-```
-
-
-
-Login auf RaspiBolt mit SSH-Keys konfigurieren
-https://raspibolt.org/guide/raspberry-pi/security.html#login-with-ssh-keys
-
-Test Login mit SSH-Key
-
-```ssh
-$ ssh admin@raspibolt
-```
-
-Beim ersten Zugriff wird der Fingerprint zur Überprüfung angezeigt.
-
-sshuttle verbinden
-$ sshuttle -r admin@raspibolt 0.0.0.0/0
-
-Mit Ctrl C abbrechen
-
-Pendenzen:
-1. ev. noch sshuttle --sudoers ausführen. siehe: https://sshuttle.readthedocs.io/en/stable/manpage.html#cmdoption-sshuttle-sudoers
-2. mit nfs ein Laufwerk zu mounten
-
-## Variante sshfs
+## sshfs
 https://linuxize.com/post/how-to-use-sshfs-to-mount-remote-directories-over-ssh
 
 https://www.digitalocean.com/community/tutorials/how-to-use-sshfs-to-mount-remote-file-systems-over-ssh
@@ -238,81 +209,64 @@ https://wiki.ubuntuusers.de/systemd/Service_Units/
 
 
 
-
-
-Script-Datei für Mount von ```/data/lnd/```erstellen
+##### Variante Systemd.Mount
 
 ```sh
-sudo nano /usr/local/bin/mount_data_lnd
+admin@rbbs:/etc/systemd$ sudo nano /etc/systemd/system/data-lnd.mount
 ```
 
-Text einfügen, speichern und verlassen:
+Folgenden Text einfügen, speichern und verlassen
 
 ```
-sshfs lnd@raspibolt:/data/lnd /data/lnd -o reconnect,identityfile=/home/lnd/.ssh/id_rsa,allow_other,default_permissions
-```
-
-Datei ausführbar machen:
-
-```sh
-sudo chmod +x /usr/local/bin/mount_data_lnd
-```
-
-
-
-As user “admin”, create the service file
-
-```
-$ sudo nano /etc/systemd/system/mount_data_lnd.service
-```
-
-Paste the following configuration. Save and exit
-
-```
-# rbbs: systemd unit for mount the LND-Data-Directory from RaspiBolt
-# /etc/systemd/system/mount_data_lnd.service
-
 [Unit]
-Description=Mount LND Datadirectory from RaspiBolt
-After=network.target 
-After=network-online.target
+Description=Mount rasbiBolt-Data-Lnd
+Documentation=https://github.com/mktech-gh/rbbs
+After=sshd.service
+#Restart=on-failure
 
-[Service]
-WorkingDirectory=/home/btcrpcexplorer/btc-rpc-explorer
-ExecStart=/usr/local/bin/mount_data_lnd start
-User=lnd
-
-Restart=always
-RestartSec=30
+[Mount]
+Where=/data/lnd
+What=lnd@raspibolt:/data/lnd
+Type=fuse.sshfs
+Options=x-systemd.automount,_netdev,user,idmap=user,reconnect,allow_other,default_permissions,uid=lnd,gid=lnd
 
 [Install]
 WantedBy=multi-user.target
 ```
 
-Enable the service, start it and check the log output
+Mount starten und überprüfen
 
-```
-$ sudo systemctl enable btcrpcexplorer.service
-$ sudo systemctl start btcrpcexplorer.service
-$ sudo journalctl -f -u btcrpcexplorer
+```sh
+admin@rbbs:~$ sudo systemctl start data-lnd.mount
 ```
 
+ ```
+ admin@rbbs:~$ sudo systemctl status data-lnd.mount
+ ● data-lnd.mount - Mount rasbiBolt-Data-Lnd
+      Loaded: loaded (/etc/systemd/system/data-lnd.mount; disabled; vendor preset: enabled)
+      Active: active (mounted) since Mon 2022-05-02 21:56:18 CEST; 5min ago
+       Where: /data/lnd
+        What: lnd@raspibolt:/data/lnd
+        Docs: https://github.com/mktech-gh/rbbs
+       Tasks: 5 (limit: 4422)
+      Memory: 4.5M
+         CPU: 108ms
+      CGroup: /system.slice/data-lnd.mount
+              ├─648 ssh -x -a -oClearAllForwardings=yes -2 lnd@raspibolt -s sftp
+              └─650 /sbin/mount.fuse.sshfs lnd@raspibolt:/data/lnd /data/lnd -o rw,noexec,nosuid,nodev,idmap=user,reconnect,allow_other,default_permissions,uid=1002,gid=1002,user
+ ```
+
+Mount Enablen
+
+```sh
+admin@rbbs:~$ sudo systemctl enable data-lnd.mount
+```
+
+``` 
+Created symlink /etc/systemd/system/multi-user.target.wants/data-lnd.mount → /etc/systemd/system/data-lnd.mount.
+```
 
 
-Der folgende Test war erfolgreich:
-
-admin@rb-bonus:~$ sudo mkdir /data/lndadmin
-admin@rb-bonus:~$ sudo chown -R admin:admin /data/lndadmin
-admin@rb-bonus:~$ sshfs -o debug admin@raspibolt:/data/lnd /data/lndadmin
-SSHFS version 3.7.1
-executing <ssh> <-x> <-a> <-oClearAllForwardings=yes> <-2> <admin@raspibolt> <-s> <sftp>
-Server version: 3
-Extension: posix-rename@openssh.com <1>
-Extension: statvfs@openssh.com <2>
-Extension: fstatvfs@openssh.com <2>
-Extension: hardlink@openssh.com <1>
-Extension: fsync@openssh.com <1>
-Extension: lsetstat@openssh.com <1>
 
 
 
