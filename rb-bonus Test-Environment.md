@@ -22,7 +22,7 @@ OS:Debian
 $ sudo nano /etc/systemd/logind.conf
 ```
 
-Paste the following lines. Save and exit.
+Paste the following lines. Save, exit and restart.
 
 ```ini
 HandleLidSwitch=ignore
@@ -32,8 +32,11 @@ $ sudo service systemd-logind restart
   ```
 
 ## config wlan with wpa_supplicant 
+
+Datei wpa_supplicant-wls1.conf erstellen. Wichtig den Interfacenamen mit Bindestrich zu verwenden. ```-wls1```
+
    ```sh
-   $ sudo nano /etc/wpa_supplicant/wpa_supplicant.conf
+   $ sudo nano /etc/wpa_supplicant/wpa_supplicant-wls1.conf
    ```
    Paste the following lines. Save and exit.
    ```ini
@@ -68,39 +71,27 @@ Damit das Passwort nicht im Klartext einsehbar ist werden SSID und Passwort nich
   $ ls /sys/class/net
   > ens5f5  lo wls1
   ```
-  WLAN-Interface aktivieren, am Acccesspoint anmelden und IP-Adresse beziehen
+  WLAN-Interface aktivieren, am Accesspoint anmelden und IP-Adresse beziehen
   ```sh
   $ sudo /sbin/ifup -a -v
-  $ sudo wpa_supplicant -i wls1 -c /etc/wpa_supplicant/wpa_supplicant.conf &
+  $ sudo wpa_supplicant -i wls1 -c /etc/wpa_supplicant/wpa_supplicant-wls1.conf &
   $ sudo dhclient
   ```
 ### WLAN beim Booten automatisch aktivieren
 
-Inspiriert u.a. von https://wiki.archlinux.org/title/systemd-networkd
+Inspiriert von: https://wiki.somlabs.com/index.php/Connecting_to_WiFi_network_using_systemd_and_wpa-supplicant
 
-​	`networking.service`  wird deaktiviert, da der aktuellere Service `systemd-network.service`verwendet wird.
+​	`networking.service`  wird deaktiviert, da der aktuellere Service `systemd-network.service`verwendet wird. Sofern ein File ```/etc/network/interfaces``` vorhanden ist, dieses umbennenen, damit Interfaces nicht parallel konfiguriert werden und zu Problemen führen..
 
 ```sh
 $ sudo systemctl disable networking.service
+$ sudo cp /etc/network/interfaces /etc/network/interfaces.back
 ```
 
-​	Backup von `interfaces` erstellen und `interfaces` anpassen. Eigentlich habe ich erwartet, dass bei Verwendung von `systemd-network.service`diese Datei nicht mehr nötig ist. Jedoch wird ohne dieses Datei das Interface wls1 nicht aktiviert.
-
-  ```sh
-  $ sudo cp /etc/network/interfaces /etc/network/interfaces.back
-  $ sudo nano /etc/network/interfaces
-  ```
-​	Paste the following lines. Save and exit.
-  ```ini
-  allow-hotplug wls1
-  iface wls1 inet dhcp
-  pre-up wpa_supplicant -i wls1 -c /etc/wpa_supplicant/wpa_supplicant.conf
-  ```
-
-​	Konfiguration von `systemd-network.service`
+Erstellen der `systemd-network.service` network-Konfigurationsdatei. Mit ```10 erreicht man eine Hohe Priorisierung fürdiese Konfiguration, da die möglichen Konfigurationsfiles alphabetisch sortiert werden. Das erst bei dem der Interfacename matched wird für die Konfiguration genommen.
 
 ```sh
-$ sudo nano /etc/systemd/network/wls1.network
+$ sudo nano /etc/systemd/network/10-wls1.network
 ```
 ​	Paste the following lines. Save and exit.
 ```
@@ -112,11 +103,58 @@ DHCP=yes
 IgnoreCarrierLoss=3s
 ```
 
-​	`systemd-network.service` aktivieren für den Start beim booten
+​	`systemd-network@wls1.service` aktivieren, starten und überprüfen
 
 ```sh
-$ sudo systemctl enable systemd-networkd.service
+admin@rbbs:~$ sudo systemctl enable systemd-networkd@wls1.service
+admin@rbbs:~$ sudo systemctl start systemd-networkd.service
+admin@rbbs:~$ sudo systemctl status wpa_supplicant@wls1
 ```
+
+```
+● wpa_supplicant@wls1.service - WPA supplicant daemon (interface-specific version)
+     Loaded: loaded (/lib/systemd/system/wpa_supplicant@.service; enabled; vendor preset: enabled)
+     Active: active (running) since Tue 2022-05-03 22:57:50 CEST; 8min ago
+   Main PID: 451 (wpa_supplicant)
+      Tasks: 1 (limit: 4422)
+     Memory: 4.5M
+        CPU: 62ms
+     CGroup: /system.slice/system-wpa_supplicant.slice/wpa_supplicant@wls1.service
+             └─451 /sbin/wpa_supplicant -c/etc/wpa_supplicant/wpa_supplicant-wls1.conf -Dnl80211,wext -iwls1
+
+May 03 22:57:51 rbbs wpa_supplicant[451]: Successfully initialized wpa_supplicant
+May 03 22:57:52 rbbs wpa_supplicant[451]: wls1: CTRL-EVENT-REGDOM-CHANGE init=USER type=COUNTRY alpha2=CH
+May 03 22:57:52 rbbs wpa_supplicant[451]: wls1: CTRL-EVENT-REGDOM-CHANGE init=BEACON_HINT type=UNKNOWN
+May 03 22:57:53 rbbs wpa_supplicant[451]: wls1: SME: Trying to authenticate with ec:f4:51:f1:48:8c (SSID='mdq-92227' freq=2412 MHz)
+May 03 22:57:53 rbbs wpa_supplicant[451]: wls1: Trying to associate with ec:f4:51:f1:48:8c (SSID='mdq-92227' freq=2412 MHz)
+May 03 22:57:53 rbbs wpa_supplicant[451]: wls1: Associated with ec:f4:51:f1:48:8c
+May 03 22:57:53 rbbs wpa_supplicant[451]: wls1: CTRL-EVENT-SUBNET-STATUS-UPDATE status=0
+May 03 22:57:53 rbbs wpa_supplicant[451]: wls1: CTRL-EVENT-REGDOM-CHANGE init=COUNTRY_IE type=COUNTRY alpha2=DE
+May 03 22:57:53 rbbs wpa_supplicant[451]: wls1: WPA: Key negotiation completed with ec:f4:51:f1:48:8c [PTK=CCMP GTK=TKIP]
+May 03 22:57:53 rbbs wpa_supplicant[451]: wls1: CTRL-EVENT-CONNECTED - Connection to ec:f4:51:f1:48:8c completed [id=0 id_str=]
+```
+
+
+
+
+
+## Fix systemd-networkd-wait-online.service Problem
+
+systemd-networkd-wait-online.service ist ein systemd-serviceunit, das wartet bis alle Interfaces aktiv sind. Timeout nach 2Minuten.  Da das Ethernet-Interface nicht eingesteckt ist, gibt es beim Start einen Timeout von 2Minuten. Abhilfe:
+
+```sh
+sudo nano /lib/systemd/system/systemd-networkd-wait-online.service
+```
+
+Die folgende Zeile mit ```--any```ergänzen. Damit muss nur ein Interface aktiv sein.
+
+```
+ExecStart=/lib/systemd/systemd-networkd-wait-online --any
+```
+
+
+
+
 
 
 
