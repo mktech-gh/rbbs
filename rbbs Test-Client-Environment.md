@@ -140,10 +140,11 @@ May 04 07:40:09 rbbs systemd-networkd[278]: wls1: Gained IPv6LL
 
 
 ​	`status wpa_supplicant@wls1.service` aktivieren, starten und überprüfen
+Wir verwenden die "interface-spezific version"
 
 ```sh
-admin@rbbs:~$ sudo systemctl enable systemd-networkd@wls1.service
-admin@rbbs:~$ sudo systemctl start systemd-networkd@wls1.service
+admin@rbbs:~$ sudo systemctl enable wpa_supplicant@wls1.service
+admin@rbbs:~$ sudo systemctl start wpa_supplicant@wls1.service
 admin@rbbs:~$ sudo systemctl status wpa_supplicant@wls1.service
 ```
 
