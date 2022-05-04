@@ -49,12 +49,12 @@ Datei wpa_supplicant-wls1.conf erstellen. Wichtig den Interfacenamen mit Bindest
 Damit das Passwort nicht im Klartext einsehbar ist werden SSID und Passwort nicht direkt in die Datei `wpa_supplicant.conf` geschrieben. Mit dem command `wpa_passphrase`  wird SSID und der Hash des Passworts in die Datei `wpa_supplicant.conf` geschrieben. Dieser Befehl muss als `root` ausgeführt werden!
    ```sh
   $ sudo -i
-  $ wpa_passphrase "WLAN-NAME" "WLAN-PASSWORT" >> /etc/wpa_supplicant/wpa_supplicant.conf
+  $ wpa_passphrase "WLAN-NAME" "WLAN-PASSWORT" >> /etc/wpa_supplicant/wpa_supplicant-wls1.conf
   $ exit
    ```
-Überprüfen von wpa_supplicant.conf:
+Überprüfen von wpa_supplicant-wls1.conf:
   ```sh
-  $ sudo cat /etc/wpa_supplicant/wpa_supplicant.conf
+  $ sudo cat /etc/wpa_supplicant/wpa_supplicant-wls1.conf
   > country=CH
   > ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
   > ap_scan=1
@@ -88,7 +88,7 @@ $ sudo systemctl disable networking.service
 $ sudo cp /etc/network/interfaces /etc/network/interfaces.back
 ```
 
-Erstellen der `systemd-network.service` network-Konfigurationsdatei. Mit ```10 erreicht man eine Hohe Priorisierung fürdiese Konfiguration, da die möglichen Konfigurationsfiles alphabetisch sortiert werden. Das erst bei dem der Interfacename matched wird für die Konfiguration genommen.
+Erstellen der `systemd-network.service` network-Konfigurationsdatei. Mit ```10 erreicht man eine hohe Priorisierung für diese Konfiguration, da die möglichen Konfigurationsfiles alphabetisch sortiert werden. Das erst bei dem der Interfacename matched wird für die Konfiguration genommen.
 
 ```sh
 $ sudo nano /etc/systemd/network/10-wls1.network
@@ -103,12 +103,48 @@ DHCP=yes
 IgnoreCarrierLoss=3s
 ```
 
-​	`systemd-network@wls1.service` aktivieren, starten und überprüfen
+​	`systemd-networkd.service` aktivieren, starten und überprüfen
+
+```sh
+admin@rbbs:~$ sudo systemctl enable systemd-networkd.service
+admin@rbbs:~$ sudo systemctl start systemd-networkd.service
+admin@rbbs:~$ sudo systemctl status systemd-networkd.service
+```
+
+```
+● systemd-networkd.service - Network Service
+     Loaded: loaded (/lib/systemd/system/systemd-networkd.service; enabled; vendor preset: enabled)
+     Active: active (running) since Wed 2022-05-04 07:40:03 CEST; 2h 21min ago
+TriggeredBy: ● systemd-networkd.socket
+       Docs: man:systemd-networkd.service(8)
+   Main PID: 278 (systemd-network)
+     Status: "Processing requests..."
+      Tasks: 1 (limit: 4422)
+     Memory: 4.0M
+        CPU: 524ms
+     CGroup: /system.slice/systemd-networkd.service
+             └─278 /lib/systemd/systemd-networkd
+
+May 04 07:40:03 rbbs systemd-networkd[278]: ens5f5: Link UP
+May 04 07:40:04 rbbs systemd-networkd[278]: wlan0: Interface name change detected, wlan0 has been renamed to wls1.
+May 04 07:40:04 rbbs systemd-networkd[278]: wls1: Link UP
+May 04 07:40:07 rbbs systemd-networkd[278]: wls1: Gained carrier
+May 04 07:40:07 rbbs systemd-networkd[278]: wls1: Connected WiFi access point: mdq-92227 (ec:f4:51:f1:48:8c)
+May 04 07:40:08 rbbs systemd-networkd[278]: wls1: DHCPv4 address 192.168.1.234/24 via 192.168.1.1
+May 04 07:40:09 rbbs systemd-networkd[278]: tailscale0: Link UP
+May 04 07:40:09 rbbs systemd-networkd[278]: tailscale0: Gained carrier
+May 04 07:40:09 rbbs systemd-networkd[278]: tailscale0: Gained IPv6LL
+May 04 07:40:09 rbbs systemd-networkd[278]: wls1: Gained IPv6LL
+```
+
+
+
+​	`status wpa_supplicant@wls1.service` aktivieren, starten und überprüfen
 
 ```sh
 admin@rbbs:~$ sudo systemctl enable systemd-networkd@wls1.service
-admin@rbbs:~$ sudo systemctl start systemd-networkd.service
-admin@rbbs:~$ sudo systemctl status wpa_supplicant@wls1
+admin@rbbs:~$ sudo systemctl start systemd-networkd@wls1.service
+admin@rbbs:~$ sudo systemctl status wpa_supplicant@wls1.service
 ```
 
 ```
