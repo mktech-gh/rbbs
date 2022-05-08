@@ -45,7 +45,7 @@ The User connect via ``rbbs:NGINX`` to ``RaspiBolt:BTC RPC Explorer SSL``
 
     ```
     upstream btcrpcexplorer {
-      server 192.168.1.234:3002;
+      server 192.168.1.234:4000;
     }
     server {
       listen 4000 ssl;
@@ -71,7 +71,7 @@ Test auf raspibolt:
 
 https://100.86.152.52:4000/
 
--> unktioniert
+-> funktioniert
 
 
 
@@ -81,7 +81,17 @@ Weitere Abklärungen mit tcpdump
 admin@rbbs:~$ sudo apt install tcpdump
 ```
 
+Weiteres Vorgehen:
 
+Grundsätzlich wird folgendes Verfahren angestrebt/weiterverfolgt:
+
+Browser -> rbbs:NGINX --> raspibolt:NGINX --> Applikation
+
+Problem-Annahme:
+
+- rbbs:NGINX akzeptiert Zertifikat von  raspibolt:NGINX nicht
+
+https://docs.nginx.com/nginx/admin-guide/security-controls/terminating-ssl-http/
 
 
 
