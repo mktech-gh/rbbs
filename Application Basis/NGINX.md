@@ -100,10 +100,10 @@ CA erstellen um eigene Zertifikate zu erstellen:
 https://checkmk.com/de/linux-wissen/ca-zertifikat-erstellen
 
 ```sh
-sudo su -
-mkdir /root/ca
-cd /root/ca
-openssl req -new -x509 -newkey rsa:4096 -keyout ca.mktech-key.pem -out ca-mktech-cert.pem -days 3650
+root@rbbs:~/ca# sudo su -
+root@rbbs:~/ca# mkdir /root/ca
+root@rbbs:~/ca# cd /root/ca
+root@rbbs:~/ca# openssl req -new -x509 -newkey rsa:4096 -keyout ca.mktech-key.pem -out ca-mktech-cert.pem -days 3650
 ```
 
 PENDENZ:
