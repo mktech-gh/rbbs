@@ -108,7 +108,7 @@ openssl req -new -x509 -newkey rsa:4096 -keyout ca.mktech-key.pem -out ca-mktech
 
 PENDENZ:
 
-
+Weiterfahren nit Punkt **3. Schlüssel für das Server-Zertifikat erzeugen**
 
 
 
