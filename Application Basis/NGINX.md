@@ -29,7 +29,12 @@ ___
 
 Installation according to: https://raspibolt.org/guide/bitcoin/blockchain-explorer.html#blockchain-explorer
 
-The User connect via ``rbbs:NGINX`` to ``RaspiBolt:BTC RPC Explorer SSL`` 
+The User connect via ``rbbs:NGINX`` to ``RaspiBolt:BTC RPC Explorer SSL `` via ```RASPIBolt:NGINX```
+
+Die Verbindung muss via ```RASPIBolt:NGINX``` erfolgen:
+
+- ``RaspiBolt:BTC RPC Explorer SSL `` hört auf 127.0.0.1 und somit nur auf lokale  Anfragen
+- SSL Verschlüsselung. 
 
 ### Exceptions to the guide
 
@@ -103,14 +108,75 @@ https://checkmk.com/de/linux-wissen/ca-zertifikat-erstellen
 root@rbbs:~/ca# sudo su -
 root@rbbs:~/ca# mkdir /root/ca
 root@rbbs:~/ca# cd /root/ca
-root@rbbs:~/ca# openssl req -new -x509 -newkey rsa:4096 -keyout ca.mktech-key.pem -out ca-mktech-cert.pem -days 3650
+#CA Zeritifikat generieren:
+root@rbbs:~/ca# openssl req -new -x509 -newkey rsa:4096 -keyout ca-mktech-key.pem -out ca-mktech-cert.pem -days 3650
+# Private-Key für Server generieren mit Passphase
+root@rbbs:~/ca# openssl genrsa -aes128 2048 > serverkey-raspbolt.pem
+# Passphrase entfernen
+root@rbbs:~/ca# openssl rsa -in serverkey-raspbolt.pem -out serverkey-raspbolt.pem
+# Cert-Request für raspibold.local erstellen
+root@rbbs:~/ca# openssl req -new -key serverkey-raspbolt.pem -out req-raspibolt-cert.pem -nodes
+# Defailt-Werteder CA modifizieren
+root@rbbs:~/ca# nano /etc/ssl/openssl.cnf
+        dir             = .                     # Where everything is kept
+        certs           = $dir/certs            # Where the issued certs are kept
+        crl_dir         = $dir/crl              # Where the issued crl are kept
+        database        = $dir/index.txt        # database index file.
+        #unique_subject = no                    # Set to 'no' to allow creation of
+                                                # several certs with same subject.
+        new_certs_dir   = $dir                  # default place for new certs.
+
+        certificate     = $dir/ca-mktech-cert.pem # The CA certificate
+        serial          = $dir/serial           # The current serial number
+        crlnumber       = $dir/crlnumber        # the current crl number
+                                                # must be commented out to leave a V1 CRL
+        crl             = $dir/crl.pem          # The current CRL
+        private_key     = $dir/ca-mktech-key.pem # The private key
+        RANDFILE        = $dir/.rand            # private random number file insert from mk
+
+        x509_extensions = usr_cert              # The extensions to add to the cert
+#Files für Zähler und Protokoll anlegen
+root@rbbs:~/ca# touch index.txt
+root@rbbs:~/ca# echo 01 > serial
+#Zertifikat ausstellen für raspibolt.local
+root@rbbs:~/ca# openssl ca -in req-raspibolt-cert.pem -notext -out raspibolt-local-cert.pem
+        Using configuration from /usr/lib/ssl/openssl.cnf
+        Enter pass phrase for ./ca-mktech-key.pem:
+        Check that the request matches the signature
+        Signature ok
+        Certificate Details:
+                Serial Number: 1 (0x1)
+                Validity
+                    Not Before: May 12 20:04:48 2022 GMT
+                    Not After : May  9 20:04:48 2032 GMT
+                Subject:
+                    countryName               = CH
+                    organizationName          = MKTECH
+                    commonName                = raspibolt.local
+                X509v3 extensions:
+                    X509v3 Basic Constraints:
+                        CA:FALSE
+                    Netscape Comment:
+                        OpenSSL Generated Certificate
+                    X509v3 Subject Key Identifier:
+                        86:02:4B:B9:E7:C6:51:F4:8B:45:38:04:9F:7B:CA:44:CF:54:22:1C
+                    X509v3 Authority Key Identifier:
+                        keyid:52:B5:85:98:27:D3:6F:05:66:2C:CF:B9:46:76:10:36:A3:C6:4D:68
+
+        Certificate is to be certified until May  9 20:04:48 2032 GMT (3650 days)
+        Sign the certificate? [y/n]:y
+
+
+        1 out of 1 certificate requests certified, commit? [y/n]y
+        Write out database with 1 new entries
+        Data Base Updated
+
+
 ```
 
 PENDENZ:
 
-Weiterfahren nit Punkt **3. Schlüssel für das Server-Zertifikat erzeugen**
-
-
+Zertifikatserstellung wiederholen: Zuerst noch root@rbbs:~/ca# nano /etc/ssl/openssl.cnf mit meinen Deafult-Werten (Möglichst genau) optimieren
 
 
 
