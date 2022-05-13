@@ -98,7 +98,7 @@ Problem-Annahme:
 
 https://docs.nginx.com/nginx/admin-guide/security-controls/terminating-ssl-http/
 
-
+https://docs.nginx.com/nginx/admin-guide/security-controls/securing-http-traffic-upstream/
 
 CA erstellen um eigene Zertifikate zu erstellen:
 
@@ -107,76 +107,96 @@ https://checkmk.com/de/linux-wissen/ca-zertifikat-erstellen
 ```sh
 root@rbbs:~/ca# sudo su -
 root@rbbs:~/ca# mkdir /root/ca
+root@rbbs:~/ca# mkdir /root/ca/certs
 root@rbbs:~/ca# cd /root/ca
+# Default-Wert der CA modifizieren
+root@rbbs:~/ca# nano /etc/ssl/openssl.cnf
 #CA Zeritifikat generieren:
 root@rbbs:~/ca# openssl req -new -x509 -newkey rsa:4096 -keyout ca-mktech-key.pem -out ca-mktech-cert.pem -days 3650
 # Private-Key für Server generieren mit Passphase
-root@rbbs:~/ca# openssl genrsa -aes128 2048 > serverkey-raspbolt.pem
+root@rbbs:~/ca# openssl genrsa -aes128 2048 > raspibolt-local-key.pem
 # Passphrase entfernen
-root@rbbs:~/ca# openssl rsa -in serverkey-raspbolt.pem -out serverkey-raspbolt.pem
+root@rbbs:~/ca# openssl rsa -in raspibolt-local-key.pem -out raspibolt-local-key.pem
 # Cert-Request für raspibold.local erstellen
-root@rbbs:~/ca# openssl req -new -key serverkey-raspbolt.pem -out req-raspibolt-cert.pem -nodes
-# Defailt-Werteder CA modifizieren
-root@rbbs:~/ca# nano /etc/ssl/openssl.cnf
-        dir             = .                     # Where everything is kept
-        certs           = $dir/certs            # Where the issued certs are kept
-        crl_dir         = $dir/crl              # Where the issued crl are kept
-        database        = $dir/index.txt        # database index file.
-        #unique_subject = no                    # Set to 'no' to allow creation of
-                                                # several certs with same subject.
-        new_certs_dir   = $dir                  # default place for new certs.
-
-        certificate     = $dir/ca-mktech-cert.pem # The CA certificate
-        serial          = $dir/serial           # The current serial number
-        crlnumber       = $dir/crlnumber        # the current crl number
-                                                # must be commented out to leave a V1 CRL
-        crl             = $dir/crl.pem          # The current CRL
-        private_key     = $dir/ca-mktech-key.pem # The private key
-        RANDFILE        = $dir/.rand            # private random number file insert from mk
-
-        x509_extensions = usr_cert              # The extensions to add to the cert
+root@rbbs:~/ca# openssl req -new -key raspibolt-local-key.pem -out raspibolt-local-cert-req.pem -nodes
 #Files für Zähler und Protokoll anlegen
 root@rbbs:~/ca# touch index.txt
 root@rbbs:~/ca# echo 01 > serial
 #Zertifikat ausstellen für raspibolt.local
-root@rbbs:~/ca# openssl ca -in req-raspibolt-cert.pem -notext -out raspibolt-local-cert.pem
-        Using configuration from /usr/lib/ssl/openssl.cnf
-        Enter pass phrase for ./ca-mktech-key.pem:
-        Check that the request matches the signature
-        Signature ok
-        Certificate Details:
-                Serial Number: 1 (0x1)
-                Validity
-                    Not Before: May 12 20:04:48 2022 GMT
-                    Not After : May  9 20:04:48 2032 GMT
-                Subject:
-                    countryName               = CH
-                    organizationName          = MKTECH
-                    commonName                = raspibolt.local
-                X509v3 extensions:
-                    X509v3 Basic Constraints:
-                        CA:FALSE
-                    Netscape Comment:
-                        OpenSSL Generated Certificate
-                    X509v3 Subject Key Identifier:
-                        86:02:4B:B9:E7:C6:51:F4:8B:45:38:04:9F:7B:CA:44:CF:54:22:1C
-                    X509v3 Authority Key Identifier:
-                        keyid:52:B5:85:98:27:D3:6F:05:66:2C:CF:B9:46:76:10:36:A3:C6:4D:68
+root@rbbs:~/ca# openssl ca -in raspibolt-local-cert-req.pem -notext -out raspibolt-local-cert.pem
+            Using configuration from /usr/lib/ssl/openssl.cnf
+            Enter pass phrase for ./ca-mktech-key.pem:
+            Check that the request matches the signature
+            Signature ok
+            Certificate Details:
+                    Serial Number: 1 (0x1)
+                    Validity
+                        Not Before: May 13 09:40:58 2022 GMT
+                        Not After : May 10 09:40:58 2032 GMT
+                    Subject:
+                        countryName               = CH
+                        organizationName          = MKTECH
+                        organizationalUnitName    = MKTECH
+                        commonName                = raspibolt.local
+                        emailAddress              = mktech-info@riseup.net
+                    X509v3 extensions:
+                        X509v3 Basic Constraints:
+                            CA:FALSE
+                        Netscape Cert Type:
+                            SSL Client, S/MIME
+                        X509v3 Key Usage:
+                            Digital Signature, Non Repudiation, Key Encipherment
+                        Netscape Comment:
+                            OpenSSL Generated Certificate
+                        X509v3 Subject Key Identifier:
+                            7B:73:B7:A4:D4:77:30:12:8A:22:75:09:3E:B3:6D:C8:53:2A:0E:7E
+                        X509v3 Authority Key Identifier:
+                            keyid:C0:A7:AF:8E:84:DB:FC:60:19:F5:41:94:D7:0D:48:81:20:9B:73:59
 
-        Certificate is to be certified until May  9 20:04:48 2032 GMT (3650 days)
-        Sign the certificate? [y/n]:y
+            Certificate is to be certified until May 10 09:40:58 2032 GMT (3650 days)
+            Sign the certificate? [y/n]:y
 
 
-        1 out of 1 certificate requests certified, commit? [y/n]y
-        Write out database with 1 new entries
-        Data Base Updated
+            1 out of 1 certificate requests certified, commit? [y/n]y
+            Write out database with 1 new entries
+            Data Base Updated
 
 
 ```
 
-PENDENZ:
+Neue Zertifikate benutzen:
 
-Zertifikatserstellung wiederholen: Zuerst noch root@rbbs:~/ca# nano /etc/ssl/openssl.cnf mit meinen Deafult-Werten (Möglichst genau) optimieren
+1. Root-Zertifikat ```ca-mktech-cert.pem``` auf Windows-Client importieren (Vertrauenswürdige Stammzertifizierungsstellen)
+
+2. ```raspibolt-local-cert.pem```  nach ```raspibolt:/etc/ssl/certs``` kopieren
+
+3. ```raspibolt-local-key.pem``` nach ```raspibolt:/etc/ssl/private``` kopieren
+
+4. NGINX-Konfiguration von ``` ss ``` auf ```raspibolt-local-key.pem``` umkonfigurieren:
+
+   ```sh
+   sudo nano /etc/nginx/nginx.conf
+   ```
+
+> \#  ssl_certificate /etc/ssl/certs/nginx-selfsigned.crt;
+>
+> \# ssl_certificate_key /etc/ssl/private/nginx-selfsigned.key;
+>
+>  ssl_certificate /etc/ssl/certs/raspibolt-local-cert.pem;
+>
+>  ssl_certificate_key /etc/ssl/private/raspibolt-local-key.pem;'
+
+```
+admin@raspibolt:~ $ sudo nginx -t
+admin@raspibolt:~ $ sudo systemctl restart nginx.service
+
+```
+
+
+
+
+
+PENDENZ:
 
 
 
