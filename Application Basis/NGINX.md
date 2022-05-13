@@ -164,15 +164,21 @@ root@rbbs:~/ca# openssl ca -in raspibolt-local-cert-req.pem -notext -out raspibo
 
 ```
 
-Neue Zertifikate benutzen:
+Neue Zertifikate installieren um die Verbindung Windows-Firefox nach raspibolt.local zu benutzen:
 
 1. Root-Zertifikat ```ca-mktech-cert.pem``` auf Windows-Client importieren (Vertrauenswürdige Stammzertifizierungsstellen)
 
-2. ```raspibolt-local-cert.pem```  nach ```raspibolt:/etc/ssl/certs``` kopieren
+2. Firefox Browser für den Windows-Zertifikatsspeicher-Zugriff konfigurieren:
 
-3. ```raspibolt-local-key.pem``` nach ```raspibolt:/etc/ssl/private``` kopieren
+   1. About:config
 
-4. NGINX-Konfiguration von ``` ss ``` auf ```raspibolt-local-key.pem``` umkonfigurieren:
+   2. ```security.enterprise_roots.enabled``` auf **True** stellen.
+
+3. ```raspibolt-local-cert.pem```  nach ```raspibolt:/etc/ssl/certs``` kopieren
+
+4. ```raspibolt-local-key.pem``` nach ```raspibolt:/etc/ssl/private``` kopieren
+
+5. NGINX-Konfiguration von ``` ss ``` auf ```raspibolt-local-key.pem``` umkonfigurieren:
 
    ```sh
    sudo nano /etc/nginx/nginx.conf
