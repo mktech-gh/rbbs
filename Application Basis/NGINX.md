@@ -29,7 +29,7 @@ ___
 
 Installation according to: https://raspibolt.org/guide/bitcoin/blockchain-explorer.html#blockchain-explorer
 
-The User connect via ``rbbs:NGINX`` to ``RaspiBolt:BTC RPC Explorer SSL `` via ```RASPIBolt:NGINX```
+The User connect ->``rbbs:NGINX`` -> ```RASPIBolt:NGINX```-> ``RaspiBolt:BTC RPC Explorer SSL `` 
 
 Die Verbindung muss via ```RASPIBolt:NGINX``` erfolgen:
 
