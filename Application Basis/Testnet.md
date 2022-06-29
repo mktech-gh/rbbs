@@ -18,8 +18,11 @@ unter Berücksichtigungen der Änderungen im Bonusguide:  https://raspibolt.org/
 3. Electrum-Server
    1. NGINX und FW
    2. Electrs
-      1. sudo apt-get install cargo (Cargo wird zur Compilation  benötigt)
-      2. sudo apt-get install libclang-dev (wird von Cargo zur Compilation benötigt)
+      1. ```
+         sudo apt-get install cargo (Cargo wird zur Compilation  benötigt)
+         sudo apt-get install libclang-dev (wird von Cargo zur Compilation benötigt)
+         sudo apt install g++
+         ```
 
 
 
