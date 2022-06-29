@@ -191,7 +191,9 @@ ExecStart=/lib/systemd/systemd-networkd-wait-online --any
 
 
 
+### GIT installieren
 
+sudo apt-get install git-core
 
 
 
