@@ -2,9 +2,9 @@
 
 Pendenzen allgemein
 
-1. sshfs - Vebingung testen betreffend ausfall Restart usw.
+1. sshfs - Verbindung testen betreffend Ausfall/Restart usw.
 
-
+**ACHTUNG der permanent Mount wurde deaktiviert: Ab 29.06.22 wird eine Bitcoind auf dem Testnet betrieben und das Verzeichnis /data wird nun lokal benutzt. Sobald der Datei-Mount zum RaspiBolt wieder nötig wird muss ein neues Verzeichnis als Mount-Punkt erstellt werden.**
 
 ## sshfs - Mount raspibolt/data/lnd/
 
@@ -104,7 +104,7 @@ Das  remote directory mit dem sshfs Befehl verbinden (-o debug zum testen):
 lnd@rbbs~$ sshfs -o debug lnd@raspibolt:/data/lnd /data/lnd
 ```
 
-Auf einem zweiten Terminal-Fenster mit ``admin@rbbs`` anmelden und auf ```lnd```wechseln
+Auf einem zweiten Terminal-Fenster mit ``admin@rbbs`` amelden und auf ```lnd```wechseln
 
 In Verzeichnis ``/data/lnd`` wechseln und Dateien auflisten. Im ersten Fenster sind die Aktivitäten aufgrund der Option ``-o debug`` zu beobachten
 
@@ -134,82 +134,21 @@ Im ersten Terminal-Fenster sind die Aktivitäten aufgrund der Option ``-o debug`
 
 ### Permanent Mount the remote lnd Directory
 
+**ACHTUNG der permanent Mount wurde deaktiviert:**
+
+sudo systemctl **disable** data-lnd.mount
+
+ **Ab 29.06.22 wird eine Bitcoind auf dem Testnet betrieben und das Verzeichnis /data wird nun benutzt. Sobald der Datei-Mount zum RaspiBolt wieder nötig wird muss ein neues Verzeichnis erstellt werden.****
+
+
+
+
+
 Das Verzeichnis @raspibolt/data/lnd soll automatisch beim start von rbbs verbunden werden. Das Verzeichnis soll bei einem Unterbruch wieder Verbunden werden. Die Zugriffsrechte sollen analog dem Verzeichnis @raspibolt/data/lnd gelten.
 
-Für den Mount wird die Datei /etc/fstab ergänzt:
-
-```sh
-admin@rbbs:~$ sudo nano /etc/fstab
-```
-
-```
-lnd@raspibolt:/data/lnd /data/lnd fuse.sshfs noauto,x-systemd.automount,_netdev,reconnect,identityfile=/home/lnd/.ssh/id_rsa,allow_other,default_permissions 0 0
-
-```
-
-Das Dateisystem auf ```@raspibolt:/data/lnd```wird beim Systemstart mit dem Benutzer ```lnd@raspibolt``` und dem Key unter ```/home/lnd/.ssh/id_rsa``` verbunden. Mit der der Option ```allow_other``` wird das verbundene Verzeichnis auch für andere Benutzer zugänglich. Dabei werden mit der Option ```default_permissions``` die Benutzer- und Gruppenrechte vom Original übernommen.
-
-Mit der Option ```_netdev``` wird systemxd angewiesen mit diesem Mount die Verfügbrkeit des Netzwerks abzuwarten.
-
-lnd@raspibolt:/data/lnd /data/lnd fuse.sshfs uid=lnd,gid=lnd,x-systemd.automount,_netdev,reconnect,identityfile=/home/lnd/.ssh/id_rsa,allow_other,default_permissions 0 0
-
-Mount:
-
-systemd-1 on /data/lnd type autofs (rw,relatime,fd=54,pgrp=1,timeout=0,minproto=5,maxproto=5,direct,pipe_ino=11562)
+##### Systemd.Mount
 
 
-
-Damit die Option ```allow_other``` verwendet werden darf, ist in der Datei ```fuse.conf```die Option ```user_allow_other```zu aktivieren:
-
-```sh
-admin@rbbs:~$ sudo nano /etc/fuse.conf
-```
-
-Kommentar bei ```user_allow_other``` entfernen.
-
-
-
-Das File-System neu laden:
-
-```sh
-admin@rbbs:~$ systemctl daemon-reload
-```
-
-
-
-Aus dem fstab - Eintrag werden zwei systemd - Mount - Unit generiert:
-
-/run/systemd/generator/data-lnd.automount
-
-/run/systemd/generator/data-lnd.moun
-
-Mit diesen Units wird der Mount mmit dem User root gemacht. Damit dies gelinget nuss auch de User Root ein Key besitzen:
-
-admin@rbbs:~$ sudo su -
-
-root@rbbs:~# ssh-keygen -t rsa -b 4096
-
-Public Key in authen..File von lnd@raspibolt aufnehmen
-
-
-
-Nun unktioniert es nach:
-
-admin@rbbs:~$ sudo systemctl start data-lnd.mount
-
-
-
-Weiter verfolgen, Sonst anstelle von Mount als service starten
-
-https://wiki.ubuntuusers.de/systemd/Units/
-
-https://wiki.ubuntuusers.de/systemd/Mount_Units/
-
-https://wiki.ubuntuusers.de/systemd/Service_Units/
-
-
-
-##### Variante Systemd.Mount
 
 ```sh
 admin@rbbs:/etc/systemd$ sudo nano /etc/systemd/system/data-lnd.mount
