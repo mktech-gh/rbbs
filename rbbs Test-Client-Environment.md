@@ -99,8 +99,8 @@ $ sudo nano /etc/systemd/network/10-wls1.network
 Name=wls1
 
 [Network]
-DHCP=yes
-IgnoreCarrierLoss=3s
+Address=192.168.1.234/24
+Gateway=192.168.1.1
 ```
 
 ​	`systemd-networkd.service` aktivieren, starten und überprüfen
